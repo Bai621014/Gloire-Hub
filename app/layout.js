@@ -1,3 +1,5 @@
+import './globals.css'
+
 export const metadata = {
   title: 'GLOIRE HUB',
   description: 'Chaque mot une parole de la vie divine',
@@ -9,4 +11,4 @@ export default function RootLayout({ children }) {
       <body>{children}</body>
     </html>
   )
-    }
+}
