@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../../lib/supabase';
 
 export default function WalletPage() {
   const [wallet, setWallet] = useState<any>(null);
@@ -43,4 +43,14 @@ export default function WalletPage() {
         <h3 className="font-bold mb-3">Répartition Automatique</h3>
         <p>Dîme: {(wallet?.auto_tithe || 0) * 100}% → Évangile 🙏🏿</p>
         <p>Nation: {(wallet?.auto_nation || 0) * 100}% → Tchad 🇹🇩</p>
-        <p>Épargne: {(wallet?.auto_saving
+        <p>Épargne: {(wallet?.auto_saving || 0) * 100}% → Toi 💎</p>
+      </div>
+
+      <button className="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">
+        Envoyer GloireCoin
+      </button>
+      
+      <button className="w-full bg-blue-600 py-3 rounded-xl font-bold">
+        Recharger en FCFA
+      </button>
+    </div
