@@ -1,11 +1,5 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 type Channel = {
   id: number;
@@ -23,34 +17,73 @@ export default function LiveTVPage() {
   const [audioOnly, setAudioOnly] = useState(false);
 
   useEffect(() => {
-    supabase.from('live_channels').select('*').then(({ data }) => {
-      if (data) {
-        setChannels(data);
-        setSelected(data.find(c => c.name.includes('Loveworld')) || data[0]);
+    // VERSION OFFLINE - CHAINES MOCK BOSS!!!
+    const mockChannels: Channel[] = [
+      {
+        id: 1,
+        name: 'Loveworld TV ✅',
+        type: 'evangile',
+        stream_url: 'https://example.com/loveworld.m3u8',
+        audio_url: 'https://example.com/loveworld.mp3',
+        is_official: true,
+        country: 'NG'
+      },
+      {
+        id: 2,
+        name: 'GloireHub Radio',
+        type: 'local',
+        stream_url: 'https://example.com/gloire.m3u8',
+        audio_url: 'https://example.com/gloire.mp3',
+        is_official: true,
+        country: 'TD'
+      },
+      {
+        id: 3,
+        name: 'BBC World',
+        type: 'international',
+        stream_url: 'https://example.com/bbc.m3u8',
+        audio_url: 'https://example.com/bbc.mp3',
+        is_official: false,
+        country: 'UK'
+      },
+      {
+        id: 4,
+        name: 'ONRTV Tchad',
+        type: 'gouvernement',
+        stream_url: 'https://example.com/onrtv.m3u8',
+        audio_url: 'https://example.com/onrtv.mp3',
+        is_official: true,
+        country: 'TD'
       }
-    });
+    ];
+
+    setChannels(mockChannels);
+    setSelected(mockChannels[0]);
   }, []);
 
   return (
     <div className="bg-black min-h-screen text-white p-4">
       <h1 className="text-2xl font-bold mb-4">📺 GloireHub TV + Radio</h1>
 
-      <div className="mb-4">
+      <div className="mb-4 flex gap-3">
         <button
           onClick={() => setAudioOnly(!audioOnly)}
-          className="bg-purple-600 px-4 py-2 rounded-full"
+          className="bg-purple-600 px-4 py-2 rounded-full font-bold"
         >
           {audioOnly? '🎥 Mode Vidéo' : '🎧 Mode Audio Sans Écran'}
         </button>
+        <a href="/tv/wallet" className="bg-green-600 px-4 py-2 rounded-full font-bold">
+          💜 100 GC
+        </a>
       </div>
 
       {selected && (
-        <div className="mb-6">
-          <h2 className="text-xl mb-2">{selected.name} {selected.is_official && '✅'}</h2>
+        <div className="mb-6 bg-gray-900 p-4 rounded-xl">
+          <h2 className="text-xl mb-2">{selected.name}</h2>
           {audioOnly? (
-            <audio controls autoPlay src={selected.audio_url} className="w-full" />
+            <audio controls src={selected.audio_url} className="w-full" />
           ) : (
-            <video controls autoPlay src={selected.stream_url} className="w-full rounded-lg" />
+            <video controls src={selected.stream_url} className="w-full rounded-lg bg-black h-48" poster="https://placehold.co/640x360/000000/FFFFFF?text=GloireHub+TV" />
           )}
         </div>
       )}
@@ -65,7 +98,7 @@ export default function LiveTVPage() {
                 onClick={() => setSelected(c)}
                 className={`block w-full text-left p-2 mb-1 rounded ${selected?.id === c.id? 'bg-purple-600' : 'bg-gray-800'}`}
               >
-                {c.name} {c.is_official && '✅'}
+                {c.name}
               </button>
             ))}
           </div>
@@ -73,4 +106,4 @@ export default function LiveTVPage() {
       </div>
     </div>
   );
-    }
+}
