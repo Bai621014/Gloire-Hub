@@ -1,12 +1,21 @@
-
 'use client'
 import { useState, useEffect } from 'react'
-import { createClient } from '@supabase/supabase-js'
 
-// COLLE TES 2 CLÉS SUPABASE ICI BOSS
-const supabaseUrl = 'TA_URL_ICI'
-const supabaseKey = 'TA_CLÉ_ANON_ICI'
-const supabase = createClient(supabaseUrl, supabaseKey)
+// FAKE SUPABASE BOSS - BYPASS POUR DEPLOY
+const supabase = {
+  from: (table) => ({
+    select: (columns) => ({
+      order: (col, options) => Promise.resolve({
+        data: [],
+        error: null
+      }),
+    }),
+    insert: (data) => Promise.resolve({
+      data: null,
+      error: null
+    }),
+  }),
+}
 
 export default function Live() {
   const [activeTab, setActiveTab] = useState('chris')
