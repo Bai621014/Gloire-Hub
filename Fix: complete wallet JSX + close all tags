@@ -1,6 +1,12 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { supabase } from '../../../lib/supabase';
+import { createClient } from '@supabase/supabase-js'
+
+// METS TES VRAIES CLÉS SUPABASE ICI BOSS!!!
+const supabase = createClient(
+  'https://TON_PROJECT_ID.supabase.co', 
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.COLLE_TA_ANON_KEY_ICI'
+)
 
 export default function WalletPage() {
   const [wallet, setWallet] = useState<any>(null);
@@ -12,7 +18,7 @@ export default function WalletPage() {
     supabase.from('wallets').select('*').eq('user_phone', phone).single()
      .then(({ data }) => {
         if (!data) {
-          // PAS D'INSERT BOSS - On met le wallet par défaut direct
+          // WALLET PAR DÉFAUT SI USER EXISTE PAS
           setWallet({ 
             gloire_balance: 100, 
             cfa_balance: 0, 
@@ -27,7 +33,13 @@ export default function WalletPage() {
       });
   }, []);
 
-  if (loading) return <div className="bg-black min-h-screen text-white p-4">Chargement portefeuille...</div>;
+  if (loading) {
+    return (
+      <div className="bg-black min-h-screen text-white p-4">
+        <p>Chargement portefeuille...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-gradient-to-b from-purple-900 to-black min-h-screen text-white p-4">
@@ -43,14 +55,4 @@ export default function WalletPage() {
         <h3 className="font-bold mb-3">Répartition Automatique</h3>
         <p>Dîme: {(wallet?.auto_tithe || 0) * 100}% → Évangile 🙏🏿</p>
         <p>Nation: {(wallet?.auto_nation || 0) * 100}% → Tchad 🇹🇩</p>
-        <p>Épargne: {(wallet?.auto_saving || 0) * 100}% → Toi 💎</p>
-      </div>
-
-      <button className="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">
-        Envoyer GloireCoin
-      </button>
-      
-      <button className="w-full bg-blue-600 py-3 rounded-xl font-bold">
-        Recharger en FCFA
-      </button>
-    </div
+        <p>Épargne: {(wallet?.
