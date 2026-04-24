@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 export default function WalletPage() {
   const [wallet, setWallet] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
     setWallet({ 
@@ -13,6 +14,28 @@ export default function WalletPage() {
       auto_saving: 0.20 
     });
   }, []);
+
+  const handleRecharge = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('/api/sterling/pay', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: 1000 }) // 1000 FCFA = 10 GC
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        alert(`Sterling Bank prêt! Réf: ${data.reference}\n10 GC = 1000 FCFA`);
+        window.location.href = data.payment_url;
+      } else {
+        alert('Erreur Sterling Bank');
+      }
+    } catch (error) {
+      alert('Erreur connexion Sterling');
+    }
+    setLoading(false);
+  };
 
   if (!wallet) {
     return (
@@ -43,8 +66,12 @@ export default function WalletPage() {
         Envoyer GloireCoin
       </button>
       
-      <button className="w-full bg-blue-600 py-3 rounded-xl font-bold">
-        Recharger en FCFA
+      <button 
+        onClick={handleRecharge}
+        disabled={loading}
+        className="w-full bg-blue-600 py-3 rounded-xl font-bold hover:bg-blue-700 disabled:opacity-50"
+      >
+        {loading ? 'Connexion Sterling...' : 'Recharger en FCFA 🇳🇬'}
       </button>
     </div>
   );
