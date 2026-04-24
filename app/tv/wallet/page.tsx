@@ -12,14 +12,18 @@ export default function WalletPage() {
     supabase.from('wallets').select('*').eq('user_phone', phone).single()
      .then(({ data }) => {
         if (!data) {
-          supabase.from('wallets').insert({ user_phone: phone }).then(() => {
-            setWallet({ gloire_balance: 100, cfa_balance: 0, auto_tithe: 0.10, auto_nation: 0.05, auto_saving: 0.20 });
-            setLoading(false);
+          // PAS D'INSERT BOSS - On met le wallet par défaut direct
+          setWallet({ 
+            gloire_balance: 100, 
+            cfa_balance: 0, 
+            auto_tithe: 0.10, 
+            auto_nation: 0.05, 
+            auto_saving: 0.20 
           });
         } else {
           setWallet(data);
-          setLoading(false);
         }
+        setLoading(false);
       });
   }, []);
 
@@ -39,16 +43,4 @@ export default function WalletPage() {
         <h3 className="font-bold mb-3">Répartition Automatique</h3>
         <p>Dîme: {(wallet?.auto_tithe || 0) * 100}% → Évangile 🙏🏿</p>
         <p>Nation: {(wallet?.auto_nation || 0) * 100}% → Tchad 🇹🇩</p>
-        <p>Épargne: {(wallet?.auto_saving || 0) * 100}% → Toi 💎</p>
-      </div>
-
-      <button className="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">
-        Envoyer GloireCoin
-      </button>
-      
-      <button className="w-full bg-blue-600 py-3 rounded-xl font-bold">
-        Recharger en FCFA
-      </button>
-    </div>
-  );
-}
+        <p>Épargne: {(wallet?.auto_saving
