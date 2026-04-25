@@ -1,26 +1,34 @@
-  'use client'
-import Link from 'next/link'
+'use client';
+import { useState } from 'react';
 
 export default function Dashboard() {
+  const [videoId, setVideoId] = useState("jfKfPfyJRdk");
+  const [input, setInput] = useState("");
+
+  const boutons = [
+    { nom: "🔴 Pasteur Chris Live", lien: "jfKfPfyJRdk" },
+    { nom: "💧 Coulée de Guérison", lien: "jfKfPfyJRdk" },
+    { nom: "🇹🇩 Télé Tchad", lien: "A1yfJ5h0_Zk" },
+    { nom: "🇹🇩 Radio Tchad", lien: "jfKfPfyJRdk" },
+    { nom: "📺 TV Internationales", lien: "jfKfPfyJRdk" },
+    { nom: "📻 Radios Internationales", lien: "jfKfPfyJRdk" },
+    { nom: "🎤 LoveWorld Singers", lien: "jfKfPfyJRdk" },
+    { nom: "🎵 Gospel 5G", lien: "jfKfPfyJRdk" },
+    { nom: "📚 Enseignements Chris", lien: "jfKfPfyJRdk" },
+    { nom: "😂 Parlement du Rire", lien: "jfKfPfyJRdk" },
+    { nom: "🙏 Louanges 24/7", lien: "jfKfPfyJRdk" },
+  ];
+
+  const jouerVideo = () => {
+    if (input.includes("youtube.com") || input.includes("youtu.be")) {
+      const id = input.split("v=")[1]?.split("&")[0] || input.split("/").pop();
+      setVideoId(id);
+    } else if (input.length === 11) {
+      setVideoId(input);
+    }
+  };
+
   return (
-    <main style={{
-      textAlign: 'center', minHeight: '100vh',
-      background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-      color: 'white', padding: '40px', fontFamily: 'sans-serif'
-    }}>
-      <h1 style={{fontSize: '45px', textShadow: '0 0 15px #fff'}}>
-        🙏 BIENVENUE DANS LA GLOIRE BOSS 🙏
-      </h1>
-      <p style={{fontSize: '22px', margin: '30px 0'}}>
-        Tu as transformé 30s de scroll en 30 ans de destinée
-      </p>
-      <Link href="/" style={{
-        display: 'inline-block', padding: '15px 30px', fontSize: '18px', 
-        backgroundColor: '#FFD700', color: '#000', textDecoration: 'none',
-        borderRadius: '50px', fontWeight: 'bold', marginTop: '20px'
-      }}>
-        ← Retour à l'accueil
-      </Link>
-    </main>
-  )
-}
+    <div style={{minHeight:'100vh', background:'black', color:'white', padding:'20px'}}>
+      <h1 style={{color:'gold', textAlign:'center', fontSize:'28px'}}>GLOIRE-HUB TV 📺🔍 🇹🇩</h1>
+      <div style={{display:'flex', gap:'10px',
