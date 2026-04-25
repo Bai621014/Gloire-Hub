@@ -1,0 +1,100 @@
+'use client'
+import { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export default function ExchangePage() {
+  const [selectedMB, setSelectedMB] = useState(100);
+  const [operator, setOperator] = useState('airtel');
+  const [phone, setPhone] = useState('+235');
+  const [loading, setLoading] = useState(false);
+
+  const rates = { 100: 50, 300: 120, 1500: 500 };
+  const fcfaRates = { 100: 100, 300: 300, 1500: 1500 };
+
+  const handleExchange = async () => {
+    if (!phone.startsWith('+235') || phone.length < 12) {
+      alert('Numéro Tchad invalide Boss! Format: +235XXXXXXXX');
+      return;
+    }
+    setLoading(true);
+
+    const gloireCost = rates[selectedMB];
+    const fcfaValue = fcfaRates[selectedMB];
+    const dime = gloireCost * 0.10;
+    const epargne = gloireCost * 0.05;
+    const nation = gloireCost * 0.05;
+
+    const { error } = await supabase
+.from('gloire_to_data')
+.insert([{
+        user_phone: phone,
+        mb_requested: selectedMB,
+        operator: operator,
+        gloire_spent: gloireCost,
+        fcfa_value: fcfaValue,
+        dime_gloire: dime,
+        epargne_gloire: epargne,
+        nation_gloire: nation,
+        status: 'pending'
+      }]);
+
+    if (error) {
+      alert('Erreur 5G Boss: ' + error.message);
+      setLoading(false);
+      return;
+    }
+
+    await supabase.from('tresor_royal').insert([
+      { type_transaction: 'dime', montant_gloire: dime, montant_fcfa: fcfaValue * 0.10, user_phone: phone },
+      { type_transaction: 'epargne', montant_gloire: epargne, montant_fcfa: fcfaValue * 0.05, user_phone: phone },
+      { type_transaction: 'nation', montant_gloire: nation, montant_fcfa: fcfaValue * 0.05, user_phone: phone }
+    ]);
+
+    alert(`Demande 5G envoyée Boss! 🙏🏿🇹🇩\n\nRépartition Céleste:\n- MB: ${selectedMB}\n- Coût: ${gloireCost} GloireCoin\n- Dîme 10%: ${dime}\n- Épargne 5%: ${epargne}\n- Nation Tchad 5%: ${nation}`);
+    setLoading(false);
+  };
+
+  return (
+    <div className="p-4 max-w-md mx-auto bg-black min-h-screen text-white">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-2">📱 GloireCoin → Internet 5G</h1>
+      <p className="text-sm text-gray-400 mb-6">Dîme 10% + Épargne 5% + Nation 5% 🇹🇩🙏🏿</p>
+
+      <div className="space-y-4 mb-6">
+        {Object.keys(rates).map((mb) => {
+          const cout = rates[mb];
+          return (
+            <button
+              key={mb}
+              onClick={() => setSelectedMB(parseInt(mb))}
+              className={`w-full p-4 rounded-lg border-2 text-left ${selectedMB == mb? 'border-yellow-400 bg-yellow-400/20' : 'border-gray-700'}`}
+            >
+              <p className="font-bold text-xl">{mb} MB</p>
+              <p className="text-sm text-gray-300">{cout} GloireCoin ≈ {fcfaRates[mb]} FCFA</p>
+              <p className="text-xs text-green-400">Dîme:{cout*0.1} | Épargne:{cout*0.05} | Tchad:{cout*0.05}</p>
+            </button>
+          );
+        })}
+      </div>
+
+      <select value={operator} onChange={(e) => setOperator(e.target.value)}
+        className="w-full p-3 mb-4 bg-gray-900 border-gray-700 rounded text-white">
+        <option value="airtel">Airtel Tchad</option>
+        <option value="moov">Moov Africa</option>
+      </select>
+
+      <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+        placeholder="+235 XX XX XX XX"
+        className="w-full p-3 mb-6 bg-gray-900 border border-gray-700 rounded text-white"/>
+
+      <button onClick={handleExchange} disabled={loading}
+        className="w-full bg-green-600 p-4 rounded-lg font-bold text-lg disabled:bg-gray-600">
+        {loading? 'Traitement 5G...' : `Échanger ${selectedMB}MB 🙏🏿🇹🇩`}
+      </button>
+    </div>
+  );
+}
