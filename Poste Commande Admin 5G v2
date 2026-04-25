@@ -1,0 +1,84 @@
+'use client'
+import { useEffect, useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+);
+
+export default function AdminPage() {
+  const [demandes, setDemandes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDemandes();
+    const channel = supabase
+      .channel('gloire-to-data')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'gloire_to_data' }, () => {
+        fetchDemandes();
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, []);
+
+  const fetchDemandes = async () => {
+    const { data } = await supabase
+      .from('gloire_to_data')
+      .select('*')
+      .order('created_at', { ascending: false });
+    setDemandes(data || []);
+    setLoading(false);
+  };
+
+  const validerDemande = async (id, phone, mb, operator) => {
+    const { error } = await supabase
+      .from('gloire_to_data')
+      .update({ status: 'completed' })
+      .eq('id', id);
+    
+    if (!error) {
+      alert(`✅ VALIDÉ BOSS!\n\nEnvoie ${mb}MB à ${phone} via ${operator.toUpperCase()} maintenant`);
+      fetchDemandes();
+    } else {
+      alert('Erreur 5G: ' + error.message);
+    }
+  };
+
+  const rejeterDemande = async (id) => {
+    await supabase.from('gloire_to_data').update({ status: 'rejected' }).eq('id', id);
+    fetchDemandes();
+  };
+
+  if (loading) return <div className="p-8 text-white bg-black min-h-screen">Chargement 5G...</div>;
+
+  return (
+    <div className="p-4 max-w-6xl mx-auto bg-black min-h-screen text-white">
+      <h1 className="text-3xl font-bold text-yellow-400 mb-6">📡 Poste de Commande 5G</h1>
+      
+      <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="bg-yellow-900/50 p-4 rounded border border-yellow-500">
+          <p className="text-sm text-yellow-300">EN ATTENTE</p>
+          <p className="text-2xl font-bold">{demandes.filter(d => d.status === 'pending').length}</p>
+        </div>
+        <div className="bg-green-900/50 p-4 rounded border border-green-500">
+          <p className="text-sm text-green-300">VALIDÉES</p>
+          <p className="text-2xl font-bold">{demandes.filter(d => d.status === 'completed').length}</p>
+        </div>
+        <div className="bg-red-900/50 p-4 rounded border border-red-500">
+          <p className="text-sm text-red-300">REJETÉES</p>
+          <p className="text-2xl font-bold">{demandes.filter(d => d.status === 'rejected').length}</p>
+        </div>
+      </div>
+
+      <h2 className="text-xl font-bold mb-4">📱 Demandes GloireCoin → MB</h2>
+      <div className="space-y-3">
+        {demandes.map((d) => (
+          <div key={d.id} className={`p-4 rounded border ${
+            d.status === 'pending' ? 'border-yellow-500 bg-yellow-900/20' :
+            d.status === 'completed' ? 'border-green-500 bg-green-900/20' : 'border-red-500 bg-red-900/20'
+          }`}>
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="font-bold text-lg">{d.mb_requested} MB → {d.user_phone}</p>
+                <p
